@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>IP Analyzer — CyberTrace</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<nav>
+    <div class="logo">Cyber<span>Trace</span></div>
+    <div>
+        <a href="/">Home</a>
+        <a href="/ip">IP Analyzer</a>
+        <a href="/email">Email Analyzer</a>
+        <a href="/url">URL Scanner</a>
+        <a href="/cdr">CDR Parser</a>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="card">
+        <h1>🌐 IP Analyzer</h1>
+        <p class="subtitle">Enter any IP address to find its location and network details</p>
+        <form method="POST">
+            <input type="text" name="ip" placeholder="Enter IP address e.g. 103.45.67.89" required>
+            <button type="submit">Analyze IP</button>
+        </form>
+
+        {% if result %}
+            {% if result.status == 'error' %}
+                <div class="result-box">
+                    <p style="color:#ff6b6b">Error: {{ result.message }}</p>
+                </div>
+            {% else %}
+                <div class="result-box">
+                    <div class="result-row"><span class="result-label">IP Address</span><span class="result-value">{{ result.ip }}</span></div>
+                    <div class="result-row"><span class="result-label">Country</span><span class="result-value">{{ result.country }}</span></div>
+                    <div class="result-row"><span class="result-label">Region</span><span class="result-value">{{ result.region }}</span></div>
+                    <div class="result-row"><span class="result-label">City</span><span class="result-value">{{ result.city }}</span></div>
+                    <div class="result-row"><span class="result-label">ISP</span><span class="result-value">{{ result.isp }}</span></div>
+                    <div class="result-row"><span class="result-label">Organisation</span><span class="result-value">{{ result.org }}</span></div>
+                    <div class="result-row"><span class="result-label">Timezone</span><span class="result-value">{{ result.timezone }}</span></div>
+                    <div class="result-row"><span class="result-label">Coordinates</span><span class="result-value">{{ result.lat }}, {{ result.lon }}</span></div>
+                </div>
+
+                <form method="POST" action="/ip/report" style="margin-top:16px">
+                    <input type="hidden" name="ip" value="{{ result.ip }}">
+                    <input type="hidden" name="country" value="{{ result.country }}">
+                    <input type="hidden" name="region" value="{{ result.region }}">
+                    <input type="hidden" name="city" value="{{ result.city }}">
+                    <input type="hidden" name="isp" value="{{ result.isp }}">
+                    <input type="hidden" name="org" value="{{ result.org }}">
+                    <input type="hidden" name="timezone" value="{{ result.timezone }}">
+                    <button type="submit" class="btn-report">📄 Download PDF Report</button>
+                </form>
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
+<footer>CyberTrace &nbsp;&nbsp; Cyber Police Station Jammu &nbsp;·&nbsp; Sneha Dogra</footer>
+</body>
+</html>

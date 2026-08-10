@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>URL Scanner — CyberTrace</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<nav>
+    <div class="logo">Cyber<span>Trace</span></div>
+    <div>
+        <a href="/">Home</a>
+        <a href="/ip">IP Analyzer</a>
+        <a href="/email">Email Analyzer</a>
+        <a href="/url">URL Scanner</a>
+        <a href="/cdr">CDR Parser</a>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="card">
+        <h1>🔗 URL Scanner</h1>
+        <p class="subtitle">Scan any suspicious URL against 70+ antivirus engines</p>
+        <form method="POST">
+            <input type="text" name="url" placeholder="Enter URL e.g. https://suspicious-site.com" required>
+            <button type="submit">Scan URL</button>
+        </form>
+
+        {% if result %}
+            {% if result.status == 'error' %}
+                <div class="result-box">
+                    <p style="color:#ff6b6b">Error: {{ result.message }}</p>
+                </div>
+            {% else %}
+                <div class="result-box">
+                    <div class="result-row"><span class="result-label">URL Scanned</span><span class="result-value" style="word-break:break-all">{{ result.url }}</span></div>
+                    <div class="result-row">
+                        <span class="result-label">Verdict</span>
+                        <span class="result-value">
+                            <span class="badge {% if result.verdict == 'SAFE' %}badge-safe{% elif result.verdict == 'DANGEROUS' %}badge-danger{% else %}badge-suspicious{% endif %}">
+                                {{ result.verdict }}
+                            </span>
+                        </span>
+                    </div>
+                    <div class="result-row"><span class="result-label">Malicious Flags</span><span class="result-value" style="color:{% if result.malicious > 0 %}#ff6b6b{% else %}#52b788{% endif %}">{{ result.malicious }} engines</span></div>
+                    <div class="result-row"><span class="result-label">Suspicious Flags</span><span class="result-value">{{ result.suspicious }} engines</span></div>
+                    <div class="result-row"><span class="result-label">Harmless</span><span class="result-value" style="color:#52b788">{{ result.harmless }} engines</span></div>
+                    <div class="result-row"><span class="result-label">Total Engines</span><span class="result-value">{{ result.total_engines }}</span></div>
+                </div>
+
+                <form method="POST" action="/url/report" style="margin-top:16px">
+                    <input type="hidden" name="url" value="{{ result.url }}">
+                    <input type="hidden" name="verdict" value="{{ result.verdict }}">
+                    <input type="hidden" name="malicious" value="{{ result.malicious }}">
+                    <input type="hidden" name="suspicious" value="{{ result.suspicious }}">
+                    <input type="hidden" name="harmless" value="{{ result.harmless }}">
+                    <input type="hidden" name="total_engines" value="{{ result.total_engines }}">
+                    <button type="submit" class="btn-report">📄 Download PDF Report</button>
+                </form>
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
+<footer>CyberTrace &nbsp;·&nbsp; Cyber Police Station Jammu &nbsp;·&nbsp; Sneha Dogra</footer>
+</body>
+</html>

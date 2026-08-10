@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Email Analyzer — CyberTrace</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<nav>
+    <div class="logo">Cyber<span>Trace</span></div>
+    <div>
+        <a href="/">Home</a>
+        <a href="/ip">IP Analyzer</a>
+        <a href="/email">Email Analyzer</a>
+        <a href="/url">URL Scanner</a>
+        <a href="/cdr">CDR Parser</a>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="card">
+        <h1>📧 Email Header Analyzer</h1>
+        <p class="subtitle">Paste raw email headers to trace origin and detect spoofing</p>
+        <form method="POST">
+            <textarea name="header" rows="10" placeholder="Paste full email headers here..."></textarea>
+            <button type="submit">Analyze Headers</button>
+        </form>
+
+        {% if result %}
+            {% if result.status == 'error' %}
+                <div class="result-box">
+                    <p style="color:#ff6b6b">Error: {{ result.message }}</p>
+                </div>
+            {% else %}
+                <div class="result-box">
+                    <div class="result-row"><span class="result-label">From</span><span class="result-value">{{ result.from }}</span></div>
+                    <div class="result-row"><span class="result-label">To</span><span class="result-value">{{ result.to }}</span></div>
+                    <div class="result-row"><span class="result-label">Subject</span><span class="result-value">{{ result.subject }}</span></div>
+                    <div class="result-row"><span class="result-label">Date</span><span class="result-value">{{ result.date }}</span></div>
+                    <div class="result-row">
+                        <span class="result-label">SPF Check</span>
+                        <span class="result-value">
+                            <span class="badge {% if result.spf == 'Pass' %}badge-pass{% elif result.spf == 'Fail' %}badge-fail{% endif %}">{{ result.spf }}</span>
+                        </span>
+                    </div>
+                    <div class="result-row">
+                        <span class="result-label">DKIM Check</span>
+                        <span class="result-value">
+                            <span class="badge {% if result.dkim == 'Pass' %}badge-pass{% elif result.dkim == 'Fail' %}badge-fail{% endif %}">{{ result.dkim }}</span>
+                        </span>
+                    </div>
+                    {% if result.spoof_alert %}
+                    <div class="result-row">
+                        <span class="result-label">⚠️ Spoof Alert</span>
+                        <span class="result-value" style="color:#ff6b6b">Possible email spoofing detected</span>
+                    </div>
+                    {% endif %}
+                    {% if result.received_ips %}
+                    <div style="margin-top:16px">
+                        <p style="color:#6b8cad;font-size:13px;margin-bottom:12px">Originating IPs traced:</p>
+                        {% for ip in result.received_ips %}
+                        <div class="result-box" style="margin-bottom:10px;padding:14px">
+                            <div class="result-row"><span class="result-label">IP</span><span class="result-value">{{ ip.ip }}</span></div>
+                            <div class="result-row"><span class="result-label">Location</span><span class="result-value">{{ ip.city }}, {{ ip.country }}</span></div>
+                            <div class="result-row"><span class="result-label">ISP</span><span class="result-value">{{ ip.isp }}</span></div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <form method="POST" action="/email/report" style="margin-top:16px">
+                    <input type="hidden" name="from_addr" value="{{ result.from }}">
+                    <input type="hidden" name="to_addr" value="{{ result.to }}">
+                    <input type="hidden" name="subject" value="{{ result.subject }}">
+                    <input type="hidden" name="date" value="{{ result.date }}">
+                    <input type="hidden" name="spf" value="{{ result.spf }}">
+                    <input type="hidden" name="dkim" value="{{ result.dkim }}">
+                    <input type="hidden" name="spoof_alert" value="{{ result.spoof_alert }}">
+                    <button type="submit" class="btn-report">📄 Download PDF Report</button>
+                </form>
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
+<footer>CyberTrace &nbsp;·&nbsp; Cyber Police Station Jammu &nbsp;·&nbsp; Sneha Dogra</footer>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CDR Parser — CyberTrace</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<nav>
+    <div class="logo">Cyber<span>Trace</span></div>
+    <div>
+        <a href="/">Home</a>
+        <a href="/ip">IP Analyzer</a>
+        <a href="/email">Email Analyzer</a>
+        <a href="/url">URL Scanner</a>
+        <a href="/cdr">CDR Parser</a>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="card">
+        <h1>📞 CDR Parser</h1>
+        <p class="subtitle">Upload a Call Detail Record CSV file to analyze call patterns</p>
+
+        <div class="result-box" style="margin-bottom:20px;padding:14px">
+            <p style="color:#6b8cad;font-size:13px;margin-bottom:8px">📋 Your CSV file should have these columns:</p>
+            <p style="color:#90caf9;font-size:13px">caller, receiver, duration, datetime</p>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data">
+            <input type="file" name="cdr_file" accept=".csv" style="color:#e0e6f0;margin-bottom:16px;display:block">
+            <button type="submit">Parse CDR File</button>
+        </form>
+
+        {% if result %}
+            {% if result.status == 'error' %}
+                <div class="result-box" style="margin-top:20px">
+                    <p style="color:#ff6b6b">Error: {{ result.message }}</p>
+                </div>
+            {% else %}
+                <div class="result-box" style="margin-top:20px">
+                    <div class="result-row">
+                        <span class="result-label">Total Records</span>
+                        <span class="result-value">{{ result.total_records }}</span>
+                    </div>
+                    {% if result.top_callers %}
+                    <div style="margin-top:12px">
+                        <p style="color:#6b8cad;font-size:13px;margin-bottom:8px">Top Callers:</p>
+                        {% for caller, count in result.top_callers.items() %}
+                        <div class="result-row">
+                            <span class="result-label">{{ caller }}</span>
+                            <span class="result-value">{{ count }} calls</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                {% if result.chart_callers %}
+                <div class="card" style="margin-top:20px">
+                    <h2>📊 Top Callers Chart</h2>
+                    <img src="data:image/png;base64,{{ result.chart_callers }}" style="width:100%;border-radius:8px">
+                </div>
+                {% endif %}
+
+                {% if result.chart_network %}
+                <div class="card" style="margin-top:20px">
+                    <h2>🕸️ Call Network Graph</h2>
+                    <img src="data:image/png;base64,{{ result.chart_network }}" style="width:100%;border-radius:8px">
+                </div>
+                {% endif %}
+
+                <form method="POST" action="/cdr/report" style="margin-top:16px">
+                    <input type="hidden" name="total_records" value="{{ result.total_records }}">
+                    <input type="hidden" name="top_callers" value="{{ result.top_callers }}">
+                    <input type="hidden" name="chart_callers" value="{{ result.chart_callers }}">
+                    <button type="submit" class="btn-report">📄 Download PDF Report</button>
+                </form>
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
+<footer>CyberTrace &nbsp;·&nbsp; Cyber Police Station Jammu &nbsp;·&nbsp; Sneha Dogra</footer>
+</body>
+</html>
