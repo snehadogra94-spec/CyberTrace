@@ -1,0 +1,7 @@
+Flask
+requests
+pandas
+matplotlib
+networkx
+fpdf2
+gunicorn
